@@ -1,1 +1,3 @@
 # EGN-Project
+
+NOTES AND OTHER STUFF
