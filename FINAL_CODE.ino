@@ -13,9 +13,6 @@ Example Sketches and Code Refrences
     2. https://www.arduino.cc/en/Tutorial/LibraryExamples/ReadWrite
     3. SD Library Read Write file and commands
 
-
-
-
 0: Idle State -
         Inputs: RFID Scanner, Reset button
         Outputs: Blue LED, Green LED
@@ -29,7 +26,6 @@ Example Sketches and Code Refrences
         Description: Once the pushbutton is pressed, a measurement is taken from the HX711 weight sensor.
         If the measurement is below X pounds and above Y pounds reading is successful and written bool Weight
         becomes true, and state is switched to 3:Micro SD. If it is false, state is sent to Reset.
-
 
 2: Micro SD -
         Inputs: None
@@ -51,17 +47,14 @@ Example Sketches and Code Refrences
         Outputs: Red
         Data Change: Changes bool Tag, Weight, SDWrite all to false
         Description: Resets the code, and sends to state Idle after acknowladge button is pressed
-
  */
 
 /*Pinouts
-
    //Micro SD Pinout
        //Pin 13 -- SCK Micro SD
        //Pin 12 -- MISO Micro SD
        //Pin 11 -- MOSI Micro SD
        //pin 4 -- CS (Chip Select) Micro SD
-
 
    //Buttons
        //pin 2 -- Blue Acknowladge Button / High VCC side of button
@@ -95,11 +88,11 @@ const int chipSelect = 10;
 int weight = 10;
 
 #define BLUE 7
-#define ACK 2 // Digital pin 2 is ACK, ACK stands for "Acknowladge button push"
-#define RED 3 // Digital pin 3 is now called RED - All caps
-#define GREEN 4
-#define SS_PIN 9
-#define RST_PIN 8
+#define ACK 2       // Digital pin 2 is ACK, ACK stands for "Acknowladge button push"
+#define RED 3       // Digital pin 3 is now called RED
+#define GREEN 4     // Digital pin 4 is now called GREEN
+#define SS_PIN 9    //CLOCK PIN
+#define RST_PIN 8   //RFID PIN
 
 // Creating an instance of the MFRC522 class and passing SS_PIN and RST_PIN as parameters
 MFRC522 rfid(SS_PIN, RST_PIN);
@@ -125,7 +118,6 @@ void setup()
 
     digitalWrite(BLUE, LOW);
     
-
     // weight
     scale.begin(dataPin, clockPin);
     scale.set_scale(355.914154); // TODO you need to calibrate this yourself.
@@ -141,7 +133,7 @@ void setup()
 
     Serial.print("Initializing SD card...");
 
-    if (!SD.begin(10))
+    if (!SD.begin(10))  // Initializes the SD card and the file system
     {
         Serial.println("initialization failed!");
     }
@@ -153,8 +145,8 @@ void loop()
     Serial.print("begin: ");
     Serial.println(state);
     delay(5);
-    if (state == 0)
-    {                                 // WEIGHT
+    if (state == 0)                   // WEIGHT
+    {                                 
         Serial.println("in state 0"); // Prints State
         Ack = digitalRead(ACK);       // Reads ACK sees if high or low
         
@@ -171,7 +163,7 @@ void loop()
             w1 = scale.get_units(10);
             delay(100);
             w2 = scale.get_units();
-            while (abs(w1 - w2) > 10)
+            while (abs(w1 - w2) > 10)//Stablizes weight value
             {
                 w1 = w2;
                 w2 = scale.get_units();
@@ -183,7 +175,7 @@ void loop()
             {
                 Serial.println();
             }
-            else
+            else                    //Measures True Weight Value
             {
                 Serial.print("\t\tDELTA: ");
                 Serial.println(w1 - previous);
@@ -195,8 +187,8 @@ void loop()
             state = state + 1;
         }
     }
-    else if (state == 1)
-    {                                 // RFID
+    else if (state == 1)              //Reading RFID
+    {                                 
         Serial.println("in state 1"); // Prints State
         // if there's no new card present on the sensor it skips the rest of the current loop
         if (!rfid.PICC_IsNewCardPresent())
@@ -223,8 +215,8 @@ void loop()
         Serial.println(state);
     }
 
-    else if (state == 2)
-    {                                 // Micro SD
+    else if (state == 2)              //Wrties to SD Card
+    {                                
         Serial.println("in state 2"); // Prints State
         laststate = state;
         delay(1000);
